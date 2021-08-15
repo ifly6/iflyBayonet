@@ -1,0 +1,26 @@
+<ModMetaData>
+	<name>iflyBayonet</name>
+	<author>ifly6</author>
+    <packageId>ifly6.iflyBayonet</packageId>
+	<supportedVersions>
+		<li>1.3</li>
+	</supportedVersions>
+	<description>
+Adds a belt-equippable bayonet which attaches to bayonet-compatible weapons automatically without needing to create a whole new gun. Those bayonets can then be used in melee combat (if also equipping a compatible bayonet-luggable ranged weapon). Bayonets cannot be used alone; an invisible force holds them to the belt.
+
+For the technically minded, the mod specifically changes the bayonet-compatible weapon's "poke" melee attacks. It leaves other weapon types, like bashing with a stock, in, replacing any time a bayonet-compatible weapon pokes with a bayonet stab.
+
+This mod also patches the average melee damage calculation and battle log to report use of the bayonet. It also creates an alert if a pawn equips a bayonet belt without also having a compatible weapon. If your pawns are equipping the belt willy-nilly and you don't like this, change your Apparel rules in Assign.
+
+Bayonets are created at the smithing table and have most of their statistics taken from a combination of knives and spears. The cost is a bit more expensive than a knife (the model of the bayonet is that of a 1907 SMLE bayonet with quillion) and the damage is a bit less than a spear, being a bit more clunky.
+	</description>
+	<url>https://steamcommunity.com/id/ifly6/myworkshopfiles/?appid=294100</url>
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		</li>
+	</modDependencies>
+</ModMetaData>

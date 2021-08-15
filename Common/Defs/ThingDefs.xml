@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="ApparelBase">
+    
+    <defName>Apparel_BayonetBelt</defName>
+    <label>bayonet</label>
+    <techLevel>Industrial</techLevel>
+    <description>A sword bayonet with scabbard, mounted on a belt. Used automatically in melee engagements by ranged units; buffs weapon pierce damage.</description>
+
+    <recipeMaker>
+      <unfinishedThingDef>UnfinishedBelt</unfinishedThingDef>
+      <researchPrerequisite>LongBlades</researchPrerequisite>
+      <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+      <workSkill>Crafting</workSkill>
+      <effectWorking>Smith</effectWorking>
+      <soundWorking>Recipe_Smith</soundWorking>
+      <recipeUsers>
+        <li>ElectricSmithy</li>
+        <li>FueledSmithy</li>
+      </recipeUsers>
+      <useIngredientsForColor>false</useIngredientsForColor>
+      <skillRequirements>
+        <Crafting>4</Crafting>
+        <!-- Spear also requires 4 crafting -->
+      </skillRequirements>
+    </recipeMaker>
+
+    <costStuffCount>40</costStuffCount>
+
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+
+    <graphicData>
+      <!-- <texPath>Things/Item/Equipment/WeaponMelee/Gladius</texPath> -->
+      <texPath>BayonetBelt</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+
+    <tools>
+      <li>
+        <label>bayonet</label>
+        <capacities>
+          <li>Stab</li>
+        </capacities>
+        <power>18</power>
+        <armorPenetration>0.50</armorPenetration>
+        <cooldownTime>2.6</cooldownTime>
+      </li>
+    </tools>
+
+    <statBases>
+      <WorkToMake>2000</WorkToMake>
+      <Mass>0.5</Mass>
+      <EquipDelay>1</EquipDelay>
+    </statBases>
+
+    <thingCategories>
+      <li>ApparelUtility</li>
+    </thingCategories>
+
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <careIfWornByCorpse>false</careIfWornByCorpse>
+      <careIfDamaged>false</careIfDamaged>
+      <wearPerDay>0</wearPerDay>
+      <bodyPartGroups>
+        <li>Waist</li>
+      </bodyPartGroups>
+      <layers>
+        <li>Belt</li>
+      </layers>
+    </apparel>
+    <colorGenerator Class="ColorGenerator_Options">
+      <options>
+        <li>
+          <weight>10</weight>
+          <only>(0.33,0.33,0.33,1)</only>
+          <!-- only dark grey -->
+        </li>
+      </options>
+    </colorGenerator>
+  </ThingDef>
+
+</Defs>
