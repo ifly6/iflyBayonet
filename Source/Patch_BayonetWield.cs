@@ -301,7 +301,7 @@ namespace Bayonet
     [HarmonyPatch(typeof(Map), nameof(Map.FinalizeInit))]
     internal static class Patch_MapInit
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && true;
+        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
 
         // Patching needed on initialisation to patch verbs when the game is loaded in.
         internal static void Postfix(ref Map __instance)
@@ -321,8 +321,8 @@ namespace Bayonet
                 Patch_BayonetWield.DoPawnPatch(pawn);
             }
 
-            if (DEBUGGING_HERE)
-                Mod.LogMessage("init with cache: " + PatchCache.DataString());
+            
+            Mod.LogMessage("init with patch cache: " + PatchCache.DataString());
         }
     }
 }
