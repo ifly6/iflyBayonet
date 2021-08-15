@@ -138,7 +138,7 @@ namespace Bayonet
                  * However, melee average damage calculations are based on poke capacity which is derived from ThingDef
                  * and is not patched by our overriding the Thing > Verb > Tools.
                  */
-                if (Patch_WieldWeapon.HasStabCapacity(tool) || Patch_WieldWeapon.HasPokeCapacity(tool))
+                if (Patch_BayonetWield.HasStabCapacity(tool) || Patch_BayonetWield.HasPokeCapacity(tool))
                 {
                     equipment = theBayonetBelt; // pass quality from bayonet belt to melee damage
                     tool = Utilities.GetBayonetTool();

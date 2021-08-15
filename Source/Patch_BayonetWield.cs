@@ -76,7 +76,7 @@ namespace Bayonet
     }
 
     [HarmonyPatch]
-    internal static class Patch_WieldWeapon
+    internal static class Patch_BayonetWield
     {
         private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
         private static readonly ToolCapacityDef POKE_CAPACITY = DefDatabase<ToolCapacityDef>.GetNamed("Poke");
@@ -84,11 +84,11 @@ namespace Bayonet
 
         internal static bool HasPokeCapacity(Tool tool)
         {
-            return tool.capacities.Contains(Patch_WieldWeapon.POKE_CAPACITY);
+            return tool.capacities.Contains(Patch_BayonetWield.POKE_CAPACITY);
         }
         internal static bool HasStabCapacity(Tool tool)
         {
-            return tool.capacities.Contains(Patch_WieldWeapon.STAB_CAPACITY);
+            return tool.capacities.Contains(Patch_BayonetWield.STAB_CAPACITY);
         }
         private static string __MakeMessage(List<Verb> verbs)
         {
@@ -318,7 +318,7 @@ namespace Bayonet
                 if (DEBUGGING_HERE)
                     Mod.LogMessage("init-patching pawn " + pawn.ToStringSafe());
 
-                Patch_WieldWeapon.DoPawnPatch(pawn);
+                Patch_BayonetWield.DoPawnPatch(pawn);
             }
 
             if (DEBUGGING_HERE)

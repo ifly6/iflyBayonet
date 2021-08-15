@@ -45,10 +45,10 @@
     <None Include="..\Common\Patches\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BayonetUnuseableAlert.cs" />
+    <Compile Include="Alert_BayonetUnuseable.cs" />
     <Compile Include="VerbCapacitySplit.cs" />
     <Compile Include="Patch_MeleeExplanation.cs" />
-    <Compile Include="Patch_WieldWeapon.cs" />
+    <Compile Include="Patch_BayonetWield.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Patch_MeleeDamageCalc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
