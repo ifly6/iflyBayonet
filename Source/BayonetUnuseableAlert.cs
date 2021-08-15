@@ -50,7 +50,7 @@ namespace Bayonet
         {
             this.defaultLabel = "Bayonet user does not have mountable weapon";
             this.defaultExplanation = "Bayonets can only be mounted on certain weapons. They can only be used with ranged weapons with lugs: "
-                + String.Join(",", LIST_VALID_WEAPONS);
+                + String.Join(", ", LIST_VALID_WEAPONS);
         }
 
         public override AlertReport GetReport()

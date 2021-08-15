@@ -115,7 +115,7 @@ namespace Bayonet
      new[] { typeof(Tool), typeof(Pawn), typeof(Thing), typeof(HediffComp_VerbGiver) })]
     internal static class Patch_MeleeDamageAmount
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && true;
+        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
 
         private static string ToolCapacitiesToString(Tool t)
         {
@@ -142,6 +142,8 @@ namespace Bayonet
                 {
                     equipment = theBayonetBelt; // pass quality from bayonet belt to melee damage
                     tool = Utilities.GetBayonetTool();
+
+                    // this method constantly gets called for some reason, even when paused
                     if (DEBUGGING_HERE)
                         Mod.LogMessage(String.Format(
                             "imputed tool {0} and equipment {1}; orig capacites {2}",
