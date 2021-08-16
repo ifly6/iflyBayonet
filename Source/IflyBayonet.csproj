@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alert_BayonetUnuseable.cs" />
+    <Compile Include="Patch_MeleeManoeuvre.cs" />
     <Compile Include="VerbCapacitySplit.cs" />
     <Compile Include="Patch_MeleeExplanation.cs" />
     <Compile Include="Patch_BayonetWield.cs" />

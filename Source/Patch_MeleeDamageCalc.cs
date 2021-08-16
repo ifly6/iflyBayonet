@@ -28,7 +28,7 @@ namespace Bayonet
 
                 Mod.LogError("Bayonet belt is misconfigured; no stabbing tool! See tool capacities: "
                     + l.Select(t => t.capacities).SelectMany(i => i).Select(c => c.label));
-                throw new IndexOutOfRangeException("Bayonet belt is misconfigured; no stabbing tool");
+                throw new IndexOutOfRangeException("Bayonet belt is misconfigured!");
             }
 
             return bayonetStab;
