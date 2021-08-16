@@ -5,10 +5,10 @@ This mod also patches the average melee damage calculation and battle log to rep
 
 Bayonets are created at the smithing table and have most of their statistics taken from a combination of knives and spears. The cost is a bit more expensive than a knife (the model of the bayonet is that of a 1907 SMLE bayonet with quillion) and the damage is a bit less than a spear, being a bit more clunky.
 
-# Installation
+## Installation
 [Subscribe on Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2575309478).
 
-# Technical information
+## Technical information
 For the technically minded, the mod specifically changes the bayonet-compatible weapon's "poke" melee attacks. It leaves other weapon types, like bashing with a stock, in, replacing any time a bayonet-compatible weapon pokes with a bayonet stab. This is done by patches in Harmony.
 
 As a broad overview, the patches are grouped into three main sections:
