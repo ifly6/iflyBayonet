@@ -24,7 +24,8 @@ As a broad overview, the patches are grouped into three main sections:
   - Patches here are difficult due to RimWorld code not calculating melee damage on `Thing` but, rather, on `ThingDef`. Any patch would have to go in the middle of a method to execute properly.
 
 - `Patch_WieldWeapon`
-  - When a weapon is equipped and it is a valid bayonet combination, the attack tool is replaced with a bayonet. See `Pawn_EquipmentTracker.AddEquipment`. Replacing that attack tool also updates the battle log to reflect use of bayonet accurately.
+  - When a weapon is equipped and it is a valid bayonet combination, the attack tool is replaced with a bayonet. See `Pawn_EquipmentTracker.AddEquipment`. Replacing that attack tool also updates the battle log to reflect use of bayonet accurately. This is also triggered if a wielded weapon is complemented with a bayonet. See `Pawn_ApparelTracker.Wear`.
   - When a save game is loaded, there is no equip call; so patching is also done at `Map.FinalizeInit` to ensure that all pawns' weapons have their bayonets fixed.
+  - When something is dropped or unequipped, a call is made to patch the weapon back to its original non-bayonet state.
 
-An alert, based on the code for the alert with shield belt wearers and ranged weapons, is also added so that players know why their bayonets are not working and then can take proactive measures.
+An alert, based on the code for the alert with shield belt wearers and ranged weapons, is also added so that players know if pawns are equipping items not compatible with the bayonet belt.
