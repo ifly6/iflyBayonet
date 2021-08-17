@@ -39,7 +39,9 @@
       <HintPath>..\..\..\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <None Include="..\About\**" />
+    <None Include="..\About\About.xml" />
+    <None Include="..\About\Preview.png" />
+    <None Include="..\About\PublishedFileId.txt" />
     <None Include="..\Common\Defs\**" />
     <None Include="..\Common\Languages\**" />
     <None Include="..\Common\Patches\**" />
