@@ -49,11 +49,10 @@
   <ItemGroup>
     <Compile Include="Alert_BayonetUnuseable.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="VerbCapacitySplit.cs" />
-    <Compile Include="Patch_MeleeDamageExplanation.cs" />
+    <Compile Include="Patch_MeleeExplanation.cs" />
     <Compile Include="Patch_BayonetWield.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="Patch_MeleeDamageCalc.cs" />
+    <Compile Include="Patch_MeleeCalc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
