@@ -9,7 +9,7 @@ namespace Bayonet
 {
 
     [HarmonyPatch(typeof(StatWorker_MeleeAverageDPS), nameof(StatWorker_MeleeAverageDPS.GetExplanationUnfinalized))]
-    internal static class Patch_MeleeExplanation
+    internal static class Patch_MeleeDamageExplanation
     {
         private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
 
@@ -27,7 +27,8 @@ namespace Bayonet
                 Mod.LogWarning(
                     String.Format(
                         "could not get thing from pawn: {0}, {1}, {2}",
-                        p.ToStringSafe(), p.equipment.ToStringSafe(), p.equipment.AllEquipmentListForReading.ToStringSafeEnumerable()
+                        p.ToStringSafe(), p.equipment.ToStringSafe(),
+                        p.equipment.AllEquipmentListForReading.ToStringSafeEnumerable()
                     ));
                 return null;
             }
@@ -36,27 +37,26 @@ namespace Bayonet
         // Make all combinations of a given tool's label and the capacities thereof
         private static List<String> MakeToolCapacityString(Tool t)
         {
-            string toolLabel = t.LabelCap;
             List<ToolCapacityDef> capacities = t.capacities;
             if (capacities != null)
                 return capacities
-                    .Select(c => String.Format("{0} ({1})", t.LabelCap, c.label))
+                    .Select(c => $"{t.LabelCap} ({c.label})")
                     .ToList();
 
             return new List<string>(0);
         }
 
-        private static Dictionary<string, string> CreateDictionary(List<Tool> defTools, List<Tool> itemTools)
+        private static Dictionary<string, string> CreateDictionary(List<PatchCache.BayonetPatch> patches)
         {
             Dictionary<string, string> d = new Dictionary<string, string>();
-            for (int i = 0; i< defTools.Count; i++)
+            foreach (var p in patches)
             {
-                var defCapacities = MakeToolCapacityString(defTools[i]);
-                var itemCapacities = MakeToolCapacityString(itemTools[i]);
-                for (int j = 0; j < defCapacities.Count; j++)
+                var defCapacities = MakeToolCapacityString(p.oldTool);
+                var itemCapacities = MakeToolCapacityString(p.newTool);
+                for (int i = 0; i < defCapacities.Count; i++)
                 {
-                    d[defCapacities[j]] = (j < itemCapacities.Count)
-                        ? itemCapacities[j]
+                    d[defCapacities[i]] = (i < itemCapacities.Count)
+                        ? itemCapacities[i]
                         : itemCapacities[itemCapacities.Count - 1]; // last element repeats if exceeded
                 }
             }
@@ -64,7 +64,7 @@ namespace Bayonet
             return d.Count == 0 ? null : d;
         }
 
-        static void Postfix(ref string __result, StatRequest req)
+        internal static void Postfix(ref string __result, ref StatRequest req)
         {
             Pawn pawn = StatWorker_MeleeAverageDPS.GetCurrentWeaponUser(req.Thing);
             if (Utilities.GetBayonetBeltIfValidWielder(pawn) != null)
@@ -73,8 +73,8 @@ namespace Bayonet
                 bool patchingComplete = false;
 
                 List<string> replace = new List<string>();
-                ThingWithComps thing = GetThingFromPawn(pawn, req.Def as ThingDef) as ThingWithComps;
-                if (thing != null)
+                ThingWithComps weapon = GetThingFromPawn(pawn, req.Def as ThingDef) as ThingWithComps;
+                if (weapon != null)
                 {
                     //CompEquippable equipComp = thing.GetComp<CompEquippable>();
                     //// derive a mapping between the tooldef strings and the real tool strings
@@ -85,13 +85,9 @@ namespace Bayonet
                     //    .ToList();
                     //Dictionary<string, string> toolPairs = CreateDictionary(defTools, itemTools);
 
-                    if (PatchCache.Contains(thing))
+                    if (PatchCache.Contains(weapon))
                     {
-                        var changes = PatchCache.Get(thing);
-                        var toolPairs = CreateDictionary(
-                            changes.before.Select(i => i.Item2).ToList(),
-                            changes.after.Select(i => i.Item2).ToList());
-
+                        var toolPairs = CreateDictionary(PatchCache.Get(weapon));
                         if (toolPairs != null)
                         {
                             if (DEBUGGING_HERE)
@@ -115,19 +111,26 @@ namespace Bayonet
                         }
                     }
                     else
-                        Mod.LogError("cache miss for thing " + thing.ToStringSafe());
+                        Mod.LogError("cache miss for thing " + weapon.ToStringSafe());
 
-                } // null can happen, if checking dps of unequipped obj
+                }
+                else
+                    Mod.LogError("unable to find weapon held pawn for explanation rewrite!");
 
                 if (patchingComplete == false)
                     __result += "\n\nFailed to calculate weapon damage with bayonet. ";
                 if (anyPatched == false)
                     __result += "No explanation lines patched. Is bayonet working? ";
-
             }
+        }
+    }
 
-            //if (DEBUGGING_HERE)
-            //    Mod.LogMessage(__result);
+    [HarmonyPatch(typeof(StatWorker_MeleeAverageArmorPenetration), nameof(StatWorker_MeleeAverageArmorPenetration.GetExplanationUnfinalized))]
+    internal static class Patch_MeleePenetrationExplanation
+    {
+        internal static void Postfix(ref string __result, ref StatRequest req)
+        {
+            Patch_MeleeDamageExplanation.Postfix(ref __result, ref req);
         }
     }
 }

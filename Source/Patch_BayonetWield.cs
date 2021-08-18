@@ -12,40 +12,58 @@ namespace Bayonet
 {
     internal static class PatchCache
     {
-        public struct Changes
-        {
-            public string pawnName;
-            public List<(Verb, Tool)> before;
-            public List<(Verb, Tool)> after;
 
-            // Token: 0x0600AAA2 RID: 43682 RVA: 0x00395115 File Offset: 0x00393315
-            public Changes(string name, List<(Verb, Tool)> before, List<(Verb, Tool)> after)
+        private static readonly Dictionary<Thing, List<BayonetPatch>> d = new Dictionary<Thing, List<BayonetPatch>>();
+
+        public class BayonetPatch
+        {
+            public Verb v;
+            public VerbProperties oldProperties;
+            public Tool oldTool;
+            public ManeuverDef oldManoeuvre;
+            public VerbProperties newProperties;
+            public Tool newTool;
+            public ManeuverDef newManoeuvre;
+
+            public BayonetPatch(Verb v, VerbProperties oldProperties, Tool oldTool, ManeuverDef oldManoeuvre, VerbProperties newProperties,
+                Tool newTool, ManeuverDef newManoeuvre)
             {
-                this.pawnName = name;
-                this.before = before;
-                this.after = after;
+                this.v = v;
+                this.oldProperties = oldProperties;
+                this.oldTool = oldTool;
+                this.oldManoeuvre = oldManoeuvre;
+                this.newProperties = newProperties;
+                this.newTool = newTool;
+                this.newManoeuvre = newManoeuvre;
+            }
+
+            public void Apply()
+            {
+                v.verbProps = newProperties;
+                v.tool = newTool;
+                v.maneuver = newManoeuvre;
+            }
+
+            public void Revert()
+            {
+                v.verbProps = oldProperties;
+                v.tool = oldTool;
+                v.maneuver = oldManoeuvre;
             }
 
             public override string ToString()
             {
-                return string.Format("PatchChanges[name: {2}; before: {0}; after: {1}]",
-                    before.Select(t => String.Format("({0}, {1})", t.Item1.ToStringSafe(), t.Item2.ToStringSafe())).Join(),
-                    after.Select(t => String.Format("({0}, {1})", t.Item1.ToStringSafe(), t.Item2.ToStringSafe())).Join(),
-                    pawnName
-                );
-            }
-            public static List<(Verb, Tool)> MakeList(List<Verb> l)
-            {
-                return l.Select(v => (v, v.tool)).ToList();
-            }
-
-            public static string TupleToString(List<(Verb, Tool)> tupleList)
-            {
-                return tupleList.Select(t => String.Format("({0}, {1})", t.Item1.ToStringSafe(), t.Item2.ToStringSafe())).Join();
+                return "Patch[Verb {0}; Properties {1} -> {2}; Tool {3} -> {4}; Manoeuvre {5} -> {6}]"
+                    .Formatted(
+                        v.ToStringSafe(),
+                        oldProperties.ToStringSafe(),
+                        newProperties.ToStringSafe(),
+                        oldTool.label,
+                        newTool.label,
+                        oldManoeuvre.label,
+                        newManoeuvre.label);
             }
         }
-
-        private static readonly Dictionary<Thing, Changes> d = new Dictionary<Thing, Changes>();
 
         public static bool Contains(Thing weapon)
         {
@@ -53,25 +71,40 @@ namespace Bayonet
             return d.ContainsKey(weapon);
         }
 
-        public static void Add(Thing weapon, Changes changes)
+        public static void Add(Thing weapon, List<BayonetPatch> changes)
         {
             if (weapon == null)
                 throw new NullReferenceException("thing provided to patch cache was null?");
             if (!weapon.def.IsWeapon)
-                throw new ArgumentException("provided thing [" + weapon.ToStringSafe() + "]is not a weapon!");
+                throw new ArgumentException($"provided thing [{weapon.ToStringSafe()}] is not a weapon!");
 
             d[weapon] = changes;
         }
 
-        public static Changes Get(Thing weapon)
+        public static List<BayonetPatch> Get(Thing weapon)
         {
             if (weapon == null) { throw new NullReferenceException("null weapon provided to PatchChanges.Get"); }
             return d[weapon];
         }
 
-        public static string DataString() {
-            var lines = d.Select(pair => pair.Key + ": " + pair.Value.ToString());
-            return "PatchChanges[\n" + string.Join("\n", lines) + "\n]"; 
+        public static void ApplyChanges(Thing weapon)
+        {
+            var l = Get(weapon);
+            foreach (var p in l)
+                p.Apply();
+        }
+
+        public static void RevertChanges(Thing weapon)
+        {
+            var l = Get(weapon);
+            foreach (var p in l)
+                p.Revert();
+        }
+
+        public static string DataString()
+        {
+            var lines = d.Select(pair => pair.Key + ": " + pair.Value.ToStringSafeEnumerable());
+            return "PatchChanges[\n" + string.Join("\n", lines) + "\n]";
         }
     }
 
@@ -113,6 +146,8 @@ namespace Bayonet
              * Go and patch the verbs in the rifle if it is compatible. Check first whether it is
              * compatible with bayonet belt. Then, for each weapon verb which displays a poke
              * capacity, replace it with the bayonet belt's STABBY STABBY capacity.
+             * 
+             * Note that the bayonet belt itself does not have any valid verbs attached directly.
              */
             Thing bayonetBelt = Utilities.GetBayonetBeltIfValidWielder(pawn);
             if (bayonetBelt != null && pawn.equipment.Primary != null) // is compatible and has weapon
@@ -126,42 +161,20 @@ namespace Bayonet
                         .Where(v => v.IsMeleeAttack)
                         .ToList();
 
-                    List<(Verb, Tool)> oldSet = PatchCache.Changes.MakeList(primaryMeleeVerbs);
-                    if (DEBUGGING_HERE)
-                        Mod.LogMessage("original verbs: " + __MakeMessage(primaryMeleeVerbs));
+                    var patches = new List<PatchCache.BayonetPatch>();
+                    foreach (Verb v in primaryMeleeVerbs)
+                        if (HasPokeCapacity(v.tool))
+                            patches.Add(new PatchCache.BayonetPatch(v, 
+                                v.verbProps, v.tool, v.maneuver,
+                                Utilities.GetBayonetVerbProperty(), Utilities.GetBayonetTool(), Utilities.GetBayonetManoeuvre()));
 
-                    // replace melee verbs
-                    for (int i = 0; i < primaryMeleeVerbs.Count(); i++) // for each melee verb
-                    {
-                        Verb weaponVerb = primaryMeleeVerbs[i]; // no foreach so we can modify ref
-                        if (weaponVerb.tool != null && weaponVerb.tool.capacities != null)
-                        {
-                            // if the verb relates to poking people, replace it with bayonetting people
-                            if (HasPokeCapacity(weaponVerb.tool))
-                            {
-                                string oldToolName = weaponVerb.tool.ToStringSafe();
-                                weaponVerb.tool = Utilities.GetBayonetTool();
-                                if (DEBUGGING_HERE)
-                                    Mod.LogMessage("Replaced old melee tool [" + oldToolName
-                                        + "] with bayonet tool [" + weaponVerb.tool.ToStringSafe() + "]");
 
-                                /*
-                                 * MUST replace all elements with POKE. Otherwise, replacement of the melee damage
-                                 * calculations does not work properly. Bayonet added, but the blunt/poke barrel of
-                                 * a rifle causes mismatch in number of entries in the melee average damage 
-                                 * calculation.
-                                 */
-                            }
-                        }
-                    }
+                    PatchCache.Add(primaryWeapon, patches);
+                    PatchCache.ApplyChanges(primaryWeapon);
 
-                    // do caching
-                    PatchCache.Add(primaryWeapon, new PatchCache.Changes(
-                        pawn.Name.ToStringFull, 
-                        oldSet, PatchCache.Changes.MakeList(primaryMeleeVerbs)));
                     if (DEBUGGING_HERE)
                         Mod.LogMessage("created patch cache for weapon {0} stashing changes {1}".Formatted(
-                            primaryWeapon.ToStringSafe(), 
+                            primaryWeapon.ToStringSafe(),
                             PatchCache.Get(primaryWeapon).ToString()));
                 }
                 else { Mod.LogError("Pawn weapon no components or verbs??"); }
@@ -192,12 +205,12 @@ namespace Bayonet
     internal static class Patch_RemoveWeapon
     {
         private static bool DEBUGGING_HERE = Mod.DEBUGGING && false;
-        internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state, 
+        internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state,
             ref ThingWithComps eq, ref ThingWithComps resultingEq)
         {
             if (DEBUGGING_HERE)
                 Mod.LogMessage("Removing weapon prefix triggered");
-            
+
             Pawn pawn = __instance.pawn;
             if (pawn == null)
             {
@@ -213,7 +226,7 @@ namespace Bayonet
             __state = bayonetUser;
         }
 
-        internal static void Postfix(ref Pawn_EquipmentTracker __instance, bool __state, 
+        internal static void Postfix(ref Pawn_EquipmentTracker __instance, bool __state,
             ref ThingWithComps eq, ref ThingWithComps resultingEq)
         {
             Pawn pawn = __instance.pawn;
@@ -226,21 +239,8 @@ namespace Bayonet
                     Mod.LogMessage("reverting changes to bayonetted weapon");
 
                 if (PatchCache.Contains(eq))
-                {
-                    var eqChanges = PatchCache.Get(eq);
-                    for (int i = 0; i < eqChanges.after.Count(); i++)
-                    {
-                        var verb = eqChanges.after[i].Item1;
-                        verb.tool = eqChanges.before[i].Item2;
-                    }
+                    PatchCache.RevertChanges(eq);
 
-                    var reqChanges = PatchCache.Get(resultingEq);
-                    for (int i = 0; i < reqChanges.after.Count(); i++)
-                    {
-                        var verb = reqChanges.after[i].Item1;
-                        verb.tool = reqChanges.before[i].Item2;
-                    }
-                }
                 else
                     Mod.LogError("cache miss for weapon " + eq.ToStringSafe());
             }
@@ -248,12 +248,12 @@ namespace Bayonet
     }
 
     [HarmonyPatch(typeof(Pawn_ApparelTracker), nameof(Pawn_ApparelTracker.TryDrop),
-         new[] { typeof(Apparel), typeof(Apparel) }, new[] {ArgumentType.Normal, ArgumentType.Ref })]
+         new[] { typeof(Apparel), typeof(Apparel) }, new[] { ArgumentType.Normal, ArgumentType.Ref })]
     internal static class Patch_RemoveBelt
     {
         private static bool DEBUGGING_HERE = Mod.DEBUGGING && false;
 
-        internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state, 
+        internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state,
             ref Apparel ap)
         {
             Pawn pawn = __instance.pawn;
@@ -284,14 +284,8 @@ namespace Bayonet
 
                 ThingWithComps eq = pawn.equipment.Primary;
                 if (PatchCache.Contains(eq))
-                {
-                    var changes = PatchCache.Get(eq);
-                    for (int i = 0; i < changes.after.Count(); i++)
-                    {
-                        var verb = changes.after[i].Item1;
-                        verb.tool = changes.before[i].Item2;
-                    }
-                }
+                    PatchCache.RevertChanges(eq);
+
                 else
                     Mod.LogError("cache miss for weapon " + eq.ToStringSafe());
             }
@@ -321,7 +315,7 @@ namespace Bayonet
                 Patch_BayonetWield.DoPawnPatch(pawn);
             }
 
-            
+
             Mod.LogMessage("init with patch cache: " + PatchCache.DataString());
         }
     }

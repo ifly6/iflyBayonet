@@ -8,7 +8,7 @@ namespace Bayonet
     [StaticConstructorOnStartup]
     internal static class Mod
     {
-        internal static readonly bool DEBUGGING = true;
+        internal static readonly bool DEBUGGING = false;
 
         static readonly string VERSION = "v0.1";
         static readonly string NAME = "ifly Bayonet";
