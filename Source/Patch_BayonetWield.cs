@@ -51,6 +51,11 @@ namespace Bayonet
                 v.maneuver = oldManoeuvre;
             }
 
+            private static string Coalesce(string s, string i)
+            {
+                return (s.NullOrEmpty()) ? i : s;
+            }
+
             public override string ToString()
             {
                 return "Patch[Verb {0}; Properties {1} -> {2}; Tool {3} -> {4}; Manoeuvre {5} -> {6}]"
@@ -60,8 +65,8 @@ namespace Bayonet
                         newProperties.ToStringSafe(),
                         oldTool.label,
                         newTool.label,
-                        oldManoeuvre.label,
-                        newManoeuvre.label);
+                        Coalesce(oldManoeuvre.label, oldManoeuvre.defName),
+                        Coalesce(newManoeuvre.label, newManoeuvre.defName));
             }
         }
 
@@ -314,7 +319,6 @@ namespace Bayonet
 
                 Patch_BayonetWield.DoPawnPatch(pawn);
             }
-
 
             Mod.LogMessage("init with patch cache: " + PatchCache.DataString());
         }

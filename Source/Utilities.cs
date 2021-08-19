@@ -21,8 +21,10 @@ namespace Bayonet
                 .Select(i => i.Maneuvers)
                 .SelectMany(i => i)
                 .Select(i => i.verb);
+
             if (DEBUGGING_HERE)
                 Mod.LogMessage("found verb properties: " + verbProps.ToStringSafeEnumerable());
+
             return verbProps.First();
         }
 
