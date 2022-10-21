@@ -64,9 +64,9 @@ namespace Bayonet
             }
             catch (Exception)
             {
+                String s = String.Join(", ", Utilities.GetBayonetTool().Maneuvers);
                 Mod.LogError("Bayonet improperly configured without stab manoeuvre! "
-                    + "Manoeuvres are [{0}]".Formatted(
-                        Utilities.GetBayonetTool().Maneuvers.Join()));
+                    + "Valid manoeuvres are [{0}]".Formatted(s));
                 return null;
             }
         }
@@ -76,12 +76,13 @@ namespace Bayonet
 
         static readonly string[] GOOD_TAGS = new string[] {
             "IndustrialGunAdvanced", "SpacerGun",
-            "BayonetGun" // tag for other modders? idk if it works
+            "BayonetGun" // tag for other modders (apparently works)
         };
 
         static readonly string[] BAYONET_COMPATIBLE = new string[]
         {
-            "Gun_BoltActionRifle", "Gun_PumpShotgun"
+            "Gun_BoltActionRifle", "Gun_PumpShotgun",
+            "Gun_Revolver" // pritchard bayonet reacts only
         };
 
         static readonly string[] BAYONET_INCOMPATIBLE = new string[]
@@ -94,15 +95,13 @@ namespace Bayonet
         private static bool __IsNotCrapWeapon(ThingDef weapon)
         {
             if (weapon == null) { throw new NullReferenceException("provided thingdef weapon is null!"); }
-            if (GOOD_TAGS == null) { throw new NullReferenceException("weapon GOOD_TAGS are null!"); }
+            if (weapon.defName == null) { throw new NullReferenceException("weapon defname is null!"); }
+            
             if (weapon.weaponTags == null) { return false; } // weapon tags == null -> there are no tags
             if (!weapon.IsWeaponUsingProjectiles) { return false; }
 
-            List<string> weaponTags = weapon.weaponTags;
-            if (GOOD_TAGS.AsQueryable().Intersect(weaponTags).Any()) { return true; }
-            if (weapon.defName.Equals("")) { return true; }
-            if (BAYONET_COMPATIBLE.Contains(weapon.defName)) { return true; }
-            if (weapon.defName.Equals("Gun_Revolver")) { return true; }  // pritchard bayonet reacts only
+            if (GOOD_TAGS.AsQueryable().Intersect(weapon.weaponTags).Any()) { return true; } // identify by tag
+            if (BAYONET_COMPATIBLE.Contains(weapon.defName)) { return true; } // identify on these names always
 
             return false;
         }

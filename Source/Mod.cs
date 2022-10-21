@@ -10,7 +10,7 @@ namespace Bayonet
     {
         internal static readonly bool DEBUGGING = false;
 
-        static readonly string VERSION = "v0.5.2";
+        static readonly string VERSION = "v0.5.3";
         static readonly string NAME = "ifly Bayonet";
         static readonly string LOG_PREFIX = "[" + NAME + " " + VERSION + "] ";
 
