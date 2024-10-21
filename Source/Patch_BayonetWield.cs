@@ -116,7 +116,6 @@ namespace Bayonet
     [HarmonyPatch]
     internal static class Patch_BayonetWield
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
         private static readonly ToolCapacityDef POKE_CAPACITY = DefDatabase<ToolCapacityDef>.GetNamed("Poke");
         private static readonly ToolCapacityDef STAB_CAPACITY = DefDatabase<ToolCapacityDef>.GetNamed("Stab");
 
@@ -177,7 +176,7 @@ namespace Bayonet
                     PatchCache.Add(primaryWeapon, patches);
                     PatchCache.ApplyChanges(primaryWeapon);
 
-                    if (DEBUGGING_HERE)
+                    if (Mod.DEBUGGING)
                         Mod.LogMessage("created patch cache for weapon {0} stashing changes {1}".Formatted(
                             primaryWeapon.ToStringSafe(),
                             PatchCache.Get(primaryWeapon).ToString()));
@@ -209,11 +208,10 @@ namespace Bayonet
     [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.TryDropEquipment))]
     internal static class Patch_RemoveWeapon
     {
-        private static bool DEBUGGING_HERE = Mod.DEBUGGING && false;
         internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state,
             ref ThingWithComps eq, ref ThingWithComps resultingEq)
         {
-            if (DEBUGGING_HERE)
+            if (Mod.DEBUGGING)
                 Mod.LogMessage("Removing weapon prefix triggered");
 
             Pawn pawn = __instance.pawn;
@@ -224,7 +222,7 @@ namespace Bayonet
             }
 
             var bayonetUser = (Utilities.GetBayonetBeltIfValidWielder(pawn) != null);
-            if (DEBUGGING_HERE)
+            if (Mod.DEBUGGING)
                 Mod.LogMessage("remove equipment called on thing {0}, bayonet user == {1}"
                     .Formatted(eq.ToStringSafe(), bayonetUser.ToString()));
 
@@ -240,7 +238,7 @@ namespace Bayonet
             Thing nullableBayonetBelt = Utilities.GetBayonetBeltIfValidWielder(pawn);
             if (__state != (nullableBayonetBelt != null)) // bayonet is no longer valid; go and reset the weapon
             {
-                if (DEBUGGING_HERE)
+                if (Mod.DEBUGGING)
                     Mod.LogMessage("reverting changes to bayonetted weapon");
 
                 if (PatchCache.Contains(eq))
@@ -256,8 +254,6 @@ namespace Bayonet
          new[] { typeof(Apparel), typeof(Apparel) }, new[] { ArgumentType.Normal, ArgumentType.Ref })]
     internal static class Patch_RemoveBelt
     {
-        private static bool DEBUGGING_HERE = Mod.DEBUGGING && false;
-
         internal static void Prefix(ref Pawn_EquipmentTracker __instance, out bool __state,
             ref Apparel ap)
         {
@@ -269,7 +265,7 @@ namespace Bayonet
             }
 
             var bayonetUser = (Utilities.GetBayonetBeltIfValidWielder(pawn) != null);
-            if (DEBUGGING_HERE)
+            if (Mod.DEBUGGING)
                 Mod.LogMessage("remove equipment called on thing {0}, bayonet user == {1}"
                     .Formatted(ap.ToStringSafe(), bayonetUser.ToString()));
 
@@ -284,7 +280,7 @@ namespace Bayonet
             Thing nullableBayonetBelt = Utilities.GetBayonetBeltIfValidWielder(pawn);
             if (__state != (nullableBayonetBelt != null)) // bayonet is no longer valid; go and reset the weapon
             {
-                if (DEBUGGING_HERE)
+                if (Mod.DEBUGGING)
                     Mod.LogMessage("reverting changes to bayonetted weapon");
 
                 ThingWithComps eq = pawn.equipment.Primary;
@@ -300,8 +296,6 @@ namespace Bayonet
     [HarmonyPatch(typeof(Map), nameof(Map.FinalizeInit))]
     internal static class Patch_MapInit
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
-
         // Patching needed on initialisation to patch verbs when the game is loaded in.
         internal static void Postfix(ref Map __instance)
         {
@@ -314,7 +308,7 @@ namespace Bayonet
                 .ToList();
             foreach (Pawn pawn in ourPawns)
             {
-                if (DEBUGGING_HERE)
+                if (Mod.DEBUGGING)
                     Mod.LogMessage("init-patching pawn " + pawn.ToStringSafe());
 
                 Patch_BayonetWield.DoPawnPatch(pawn);

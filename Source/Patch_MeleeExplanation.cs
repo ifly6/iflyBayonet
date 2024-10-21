@@ -11,8 +11,6 @@ namespace Bayonet
     [HarmonyPatch(typeof(StatWorker_MeleeAverageDPS), nameof(StatWorker_MeleeAverageDPS.GetExplanationUnfinalized))]
     internal static class Patch_MeleeDamageExplanation
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
-
         // From a ThingDef, get the version of that thing held by the pawn, if it has Comps.
         // If it cannot be found for any reason, return null.
         private static ThingWithComps GetThingFromPawn(Pawn p, ThingDef d)
@@ -90,7 +88,7 @@ namespace Bayonet
                         var toolPairs = CreateDictionary(PatchCache.Get(weapon));
                         if (toolPairs != null)
                         {
-                            if (DEBUGGING_HERE)
+                            if (Mod.DEBUGGING)
                                 Mod.LogMessage("tool pairs: " + toolPairs.ToStringFullContents());
 
                             // replace lines where they match over, reconcat, and display

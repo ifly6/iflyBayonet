@@ -12,9 +12,6 @@ namespace Bayonet
 {
     internal static class Utilities
     {
-
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && true;
-
         internal static VerbProperties GetBayonetVerbProperty()
         {
             IEnumerable<VerbProperties> verbProps = ThingDef.Named("Apparel_BayonetBelt").tools
@@ -22,7 +19,7 @@ namespace Bayonet
                 .SelectMany(i => i)
                 .Select(i => i.verb);
 
-            if (DEBUGGING_HERE)
+            if (Mod.DEBUGGING)
                 Mod.LogMessage("found verb properties: " + verbProps.ToStringSafeEnumerable());
 
             return verbProps.First();

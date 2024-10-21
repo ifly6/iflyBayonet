@@ -19,7 +19,6 @@ namespace Bayonet
      new[] { typeof(Tool), typeof(Pawn), typeof(Thing), typeof(HediffComp_VerbGiver) })]
     internal static class Patch_MeleeDamageAmount
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
 
         private static string ToolCapacitiesToString(Tool t)
         {
@@ -38,13 +37,12 @@ namespace Bayonet
                 {
                     equipment = theBayonetBelt; // pass quality from bayonet belt to melee damage
                     tool = Utilities.GetBayonetTool();
-
-                    // this method constantly gets called for some reason, even when paused
-                    if (DEBUGGING_HERE)
-                        Mod.LogMessage(String.Format(
-                            "imputed tool {0} and equipment {1}; orig capacites {2}",
-                            tool.ToStringSafe(), equipment.ToStringSafe(),
-                            ToolCapacitiesToString(tool)));
+                    // // this method constantly gets called for some reason, even when paused
+                    // if (Mod.DEBUGGING)
+                    //     Mod.LogMessage(String.Format(
+                    //         "imputed tool {0} and equipment {1}; orig capacites {2}",
+                    //         tool.ToStringSafe(), equipment.ToStringSafe(),
+                    //         ToolCapacitiesToString(tool)));
                 }
         }
     }
@@ -53,7 +51,7 @@ namespace Bayonet
         new[] { typeof(Tool), typeof(Pawn), typeof(Thing) , typeof(HediffComp_VerbGiver) })]
     internal static class Patch_AdjustedArmorPenetration
     {
-        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING && false;
+        private static readonly bool DEBUGGING_HERE = Mod.DEBUGGING;
 
         static void Prefix(ref Tool tool, ref Pawn attacker, ref Thing equipment, ref HediffComp_VerbGiver hediffCompSource)
         {
@@ -64,12 +62,10 @@ namespace Bayonet
     [HarmonyPatch(typeof(Pawn_MeleeVerbs), nameof(Pawn_MeleeVerbs.TryMeleeAttack))]
     internal static class Patch_ConfirmPatchEffective
     {
-        // static readonly bool DEBUGGING_HERE = false;
 
         static MethodInfo getMeleeVerbMethod = AccessTools.Method(typeof(Pawn_MeleeVerbs), "TryGetMeleeVerb");
         static ToolCapacityDef POKE_CAPACITY = DefDatabase<ToolCapacityDef>.GetNamed("Poke");
 
-        // This is meant to 
         static void Prefix(ref Pawn_MeleeVerbs __instance, ref Thing target, ref Verb verbToUse)
         {
             if (Utilities.GetBayonetBeltIfValidWielder(__instance.Pawn) != null)
@@ -91,11 +87,9 @@ namespace Bayonet
     [HarmonyPatch(typeof(Verb_MeleeAttack), nameof(Verb_MeleeAttack.CreateCombatLog))]
     internal static class Patch_LogAttackTool
     {
-        private static readonly bool DEBUGGING_HERE = false;
-
         static void Postfix(ref Verb_MeleeAttack __instance, ref BattleLogEntry_MeleeCombat __result)
         {
-            if (Mod.DEBUGGING && DEBUGGING_HERE)
+            if (Mod.DEBUGGING)
             {
                 Mod.LogMessage("tool label used: " + __instance.tool.label
                     + "; passed to battle log as: " + Traverse.Create(__result).Field("toolLabel"));
