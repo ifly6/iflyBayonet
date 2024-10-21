@@ -17,10 +17,11 @@ As a broad overview, the patches are grouped into a number of main sections:
   -  Determines whether the weapon is a bayonet compatible weapon (see `Utilities` and `Utilities.IsNotCrapWeapon`)
   -  Determines whether a pawn can use the bayonet (`Utilities.GetBayonetBeltIfValidWielder`)
 
-- `Patch_MeleeCalc
+- `Patch_MeleeCalc`
   - Patches the melee damage calculations at `VerbProperties.AdjustedMeleeDamageAmount` if pawn is a valid wielder by changing the input parameters so that a pawn is attacking _as if_ he is using the bayonet
   - Patches the melee armour penetration calculations so that stabs are taken as stabs rather than as bashes for that purpose.
   - Checks that replacement was successful in `Pawn_MeleeVerbs.TryMeleeAttack`
+  - Patches the log so that it reports bayonet use rather than pokes
 
 - `Patch_MeleeExplanation`
   - Does string matching to generate and then replace the explanation such that it reflects use of the bayonet.
